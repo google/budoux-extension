@@ -1,0 +1,17 @@
+build/
+dist/
+node_modules/
+
+*.crx
+*.pem
+*.zip
+
+.vscode/
+
+# For macOS - Icon must end with two \r
+.DS_Store
+Icon
+
+# For Windows
+desktop.ini
+Thumbs.db

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link
+    href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700&amp;display=swap&amp;lang=en"
+    rel="stylesheet">
+  <style>
+    :root {
+      --mdc-theme-primary: #9c27b0;
+      --mdc-theme-secondary: #64dd17;
+      height: 100%;
+      user-select: none;
+    }
+
+    body {
+      align-items: center;
+      background: #ede7f6;
+      display: flex;
+      font-family: 'Google Sans', sans-serif;
+      height: 100%;
+      justify-content: center;
+      margin: 0;
+      padding: 0 1rem;
+    }
+
+    section {
+      background: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+      box-sizing: border-box;
+      max-width: 460px;
+      padding: 2rem;
+      width: 100%;
+    }
+
+    h1 {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 3rem;
+      margin: 0;
+    }
+
+    p {
+      align-items: center;
+      display: flex;
+      line-height: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .button-container {
+      margin-top: 2rem;
+    }
+
+    mwc-formfield {
+      /* Prevent wrapping of label text on e.g., Windows */
+      word-break: keep-all;
+    }
+
+    mwc-textfield {
+      margin-left: 1rem;
+    }
+
+    .powered-by {
+      align-self: flex-end;
+      margin-left: auto;
+    }
+  </style>
+
+</head>
+
+<body>
+  <section>
+    <h1>BudouX Chrome Extension 🍇</h1>
+    <p>
+      <mwc-formfield label="文節区切りで改行（ゼロ幅空白を挿入）">
+        <mwc-radio id="zwsp" name="separator" value="&#x200B;"></mwc-radio>
+      </mwc-formfield>
+    </p>
+    <p>
+      <mwc-formfield label="わかち書き（半角空白を挿入）">
+        <mwc-radio id="space" name="separator" value=" "></mwc-radio>
+      </mwc-formfield>
+    </p>
+    <p>
+      <mwc-formfield label="わかち書き（全角空白を挿入）">
+        <mwc-radio id="idsp" name="separator" value="&#x3000;"></mwc-radio>
+      </mwc-formfield>
+    </p>
+    <p>
+      <mwc-formfield label="指定文字列を挿入">
+        <mwc-radio id="other" name="separator" value="other"></mwc-radio>
+      </mwc-formfield>
+      <mwc-textfield id="separatorText" outlined></mwc-textfield>
+    </p>
+    <p class="button-container">
+      <mwc-button raised id="save" type="submit" label="保存する"></mwc-button>
+      <span class="powered-by">
+        Powered by
+        <a href="https://github.com/google/budoux" target="_blank">BudouX</a>
+      </span>
+    </p>
+  </section>
+  <script src="options.js"></script>
+</body>
+
+</html>

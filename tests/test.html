@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+p {
+  width: 10em;
+  overflow: hidden;
+  resize: horizontal;
+  border: 1px solid blue;
+}
+span {
+  outline: auto;
+}
+inline-block {
+  display: inline-block;
+  outline: auto;
+}
+abs {
+  position: absolute;
+  outline: auto;
+}
+left {
+  float: left;
+  outline: auto;
+}
+</style>
+<body>
+  <p>今日は天気です</p>
+  <p>欧文混じりのspaceが区切りに入らない場合</p>
+  <p>欧文混じりの space が区切りに入る場合</p>
+  <p>また、この例文は<span>inline boxの中に複数</span>の文節が入る場合です。</p>
+  <p>また、この例文は<inline-block>inline blockの中に複数の文節</inline-block>が入る場合です。</p>
+  <p>また、この例文は<left>floatの中に複数の文節</left>が入る場合です。</p>
+  <p>また、この例文は<abs>absの中に複数の文節</abs>が入る場合です。</p>
+</body>
+<script src="../dist/content.js"></script>

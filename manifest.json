@@ -1,0 +1,23 @@
+{
+  "name": "BudouX",
+  "action": {},
+  "description": "文節区切りの改行をページに適用します。オプションで、わかち書きも可能です。",
+  "version": "0.1.8",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "scripting",
+    "storage"
+  ],
+  "icons": {
+    "128": "icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "open_in_tab": true,
+    "page": "options.html"
+  }
+}

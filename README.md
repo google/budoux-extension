@@ -1,3 +1,6 @@
+[![CI](https://github.com/google/budoux-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/google/budoux-extension/actions/workflows/ci.yml)
+[![Dependencies](https://badgen.net/github/dependabot/google/budoux-extension)](https://github.com/google/budoux-extension/network/updates)
+
 # BudouX Chrome Extension
 
 This extension applies the phrase-based line breaking

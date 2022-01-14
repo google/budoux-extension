@@ -36,7 +36,7 @@
     "copy-webpack-plugin": "^10.2.0",
     "glob": "^7.2.0",
     "gts": "^3.1.0",
-    "jasmine": "^3.10.0",
+    "jasmine": "^4.0.2",
     "jsdom": "^19.0.0",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",

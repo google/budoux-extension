@@ -4,43 +4,55 @@
 # BudouX Chrome Extension
 
 This extension applies the phrase-based line breaking
+or the Japanese [Wakachi-gaki] style line breaking
 to the current page.
 
-It uses the [BudouX] line breaking engine.
-Please see the [BudouX] for more details of the engine.
+Please refer to the [Chrome Web Store] for instructions and screenshots.
 
 <img src="https://raw.githubusercontent.com/google/budoux/main/example.png">
 
+This extension uses the [BudouX] line breaking engine.
+Please see the [BudouX] for more details of the engine.
+
 [BudouX]: https://github.com/google/budoux
-# Setup the development environment
+[Chrome Web Store]: https://chrome.google.com/webstore/detail/budoux/dnonkmkecnbciehcnmhngnihgmenfmph
+[Wakachi-gaki]: https://ja.wikipedia.org/wiki/%E3%82%8F%E3%81%8B%E3%81%A1%E6%9B%B8%E3%81%8D
+
+# Install
+
+This extension is available to install at the [Chrome Web Store].
+
+To install local builds,
+please refer to the [Unpacked extension tests] section below.
+
+# Development
+
+## Build
+[build]: #build
+
+Install dependencies by:
 
 ```sh
 npm install
 ```
-
-# Build
-
-## Build the ZIP file
-
+Then you can build an unpacked directory by:
+```sh
+npm run build
+```
+Or you can build a ZIP file by:
 ```sh
 npm run zip
 ```
 
-## Build the unpacked directory
+## Testing
+
+### Unit tests
 
 ```sh
-npm run build
+npm test
 ```
 
-# Testing
-
-## Unit tests
-
-```sh
-npm run test
-```
-
-## Browser tests
+### Browser tests
 
 ```sh
 npm run dev
@@ -49,8 +61,10 @@ Then open [`test.html`] in the browser.
 
 [`test.html`]: tests/test.html
 
-## Unpacked extension tests
+### Unpacked extension tests
+[Unpacked extension tests]: #unpacked-extension-tests
 
+[Build] the unpacked directory:
 ```sh
 npm run build
 ```

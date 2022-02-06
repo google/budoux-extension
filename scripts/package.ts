@@ -38,7 +38,7 @@ class ChromeExtensionPackage {
 
   async zip(src_dir: string, zip_path: string) {
     const output = fs.createWriteStream(zip_path);
-    const closed_or_ended = new Promise<void>((resolve) => {
+    const closed_or_ended = new Promise<void>(resolve => {
       output.on('close', resolve);
       output.on('end', resolve);
     });

@@ -26,7 +26,7 @@
     "@material/mwc-formfield": "^0.25.3",
     "@material/mwc-radio": "^0.25.3",
     "@material/mwc-textfield": "^0.25.3",
-    "budoux": "^0.0.3"
+    "budoux": "^0.1.0"
   },
   "devDependencies": {
     "@types/archiver": "^5.3.1",

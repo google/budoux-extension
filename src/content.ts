@@ -15,7 +15,7 @@
  */
 
 import {loadDefaultJapaneseParser} from 'budoux';
-import {DomApplier} from './dom_applier';
+import {Applier} from './applier';
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 let logger: (...data: any[]) => void;
@@ -26,6 +26,8 @@ function logDebug(...args: any[]) {
   if (logger) logger(...args);
 }
 
+const className = 'BudouX';
+
 class DocumentApplier {
   static fromDocument(document: Document) {
     // @ts-expect-error Use a dynamic property of the document.
@@ -35,19 +37,15 @@ class DocumentApplier {
       docApplier = new DocumentApplier();
       // @ts-expect-error Use a dynamic property of the document.
       document.budouX = docApplier;
-
-      const style = document.createElement('style');
-      style.textContent =
-        '.budouX { word-break: keep-all; overflow-wrap: break-word; }';
-      document.head.appendChild(style);
+      Applier.defineClassAs(document, className);
     }
     return docApplier;
   }
 
   async applyToDocument() {
     const parser = loadDefaultJapaneseParser();
-    const domApplier = new DomApplier(parser);
-    domApplier.className = 'budouX';
+    const applier = new Applier(parser);
+    applier.className = className;
 
     if ('chrome' in window && 'storage' in chrome) {
       await new Promise<void>(resolve => {
@@ -56,7 +54,7 @@ class DocumentApplier {
             separator: '\u200B',
           },
           items => {
-            domApplier.separator = items.separator;
+            applier.separator = items.separator;
             resolve();
           }
         );
@@ -65,7 +63,7 @@ class DocumentApplier {
 
     await this.waitForDOMContentLoaded(document);
 
-    domApplier.applyToElement(document.body);
+    applier.applyToElement(document.body);
   }
 
   async waitForDOMContentLoaded(document: Document) {

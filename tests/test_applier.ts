@@ -17,7 +17,7 @@
 import 'jasmine';
 import {JSDOM} from 'jsdom';
 import {loadDefaultJapaneseParser} from 'budoux';
-import {DomApplier} from '../src/dom_applier';
+import {Applier} from '../src/applier';
 
 // Browser compatibilities.
 console.assert(!('getComputedStyle' in global));
@@ -35,16 +35,16 @@ global.getComputedStyle = (element: Element) => {
 
 const parser = loadDefaultJapaneseParser();
 
-class MockDomApplierBase extends DomApplier {
+class MockApplierBase extends Applier {
   constructor() {
     super(parser);
   }
 }
 
-describe('DomApplier.applyToElement', () => {
+describe('Applier.applyToElement', () => {
   function apply(html: string) {
     const dom = new JSDOM(html);
-    const applier = new MockDomApplierBase();
+    const applier = new MockApplierBase();
     applier.separator = '/';
     applier.className = 'applied';
     applier.applyToElement(dom.window.document.body);
@@ -79,10 +79,10 @@ describe('DomApplier.applyToElement', () => {
   }
 });
 
-describe('DomApplier.getBlocks', () => {
+describe('Applier.getBlocks', () => {
   const getBlocks = (html: string) => {
     const dom = new JSDOM(html);
-    const applier = new MockDomApplierBase();
+    const applier = new MockApplierBase();
     const blocks = applier.getBlocks(dom.window.document.body);
     const texts = Array.from(
       (function* (blocks) {
@@ -147,7 +147,7 @@ describe('DomApplier.getBlocks', () => {
   });
 });
 
-describe('DomApplier.splitTextNodes', () => {
+describe('Applier.splitTextNodes', () => {
   class MockText {
     nodeValue: string;
 
@@ -163,7 +163,7 @@ describe('DomApplier.splitTextNodes', () => {
     chunks: string[];
   }
 
-  class MockDomApplier extends MockDomApplierBase {
+  class MockApplier extends MockApplierBase {
     nodeAndChunks: NodeAndChunks[] = [];
 
     splitTextNode(node: Text, chunks: string[]) {
@@ -172,7 +172,7 @@ describe('DomApplier.splitTextNodes', () => {
   }
 
   function split(nodes: Text[], boundaries: number[]) {
-    const applier = new MockDomApplier();
+    const applier = new MockApplier();
     applier.splitTextNodes(nodes, boundaries);
     return applier.nodeAndChunks;
   }

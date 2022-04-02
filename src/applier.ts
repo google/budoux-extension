@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import {Parser} from 'budoux';
+import {Parser, DEFAULT_THRES} from 'budoux';
 
 const assert = console.assert;
 
 const ZWSP = '\u200B'; // U+200B ZERO WIDTH SPACE
 
-// Same as `Node.*`. Use our own definitions for node.js/jsdom.
+// We could use `Node.TEXT_NODE` and `Node.ELEMENT_NODE` in a browser context,
+// but we define the same here for Node.js environments.
 const NodeType = {
   ELEMENT_NODE: 1,
   TEXT_NODE: 3,
@@ -34,9 +35,11 @@ const DomAction = {
 } as const;
 type DomAction = typeof DomAction[keyof typeof DomAction];
 
-// Determines the action from the element name.
-// See also `actionForElement()`.
-// https://html.spec.whatwg.org/multipage/rendering.html
+/**
+ * Determines the action from an element name, as defined in
+ * {@link https://html.spec.whatwg.org/multipage/rendering.html HTML Rendering}.
+ * See also {@link actionForElement}.
+ */
 const domActions: {[name: string]: DomAction} = {
   // Hidden elements
   // https://html.spec.whatwg.org/multipage/rendering.html#hidden-elements
@@ -87,25 +90,40 @@ const domActions: {[name: string]: DomAction} = {
   VAR: DomAction.Skip,
 };
 
-// Determine the action for an element.
-function actionForElement(element: Element) {
+/**
+ * Determine the action for an element.
+ * @param element An element to determine the action for.
+ * @returns The {@link domActions} for the element.
+ */
+function actionForElement(element: Element): DomAction {
   const action = domActions[element.nodeName];
   if (action !== undefined) return action;
 
-  const style = getComputedStyle(element);
-  switch (style.whiteSpace) {
-    case 'nowrap':
-    case 'pre':
-      return DomAction.Skip;
-  }
+  // jsdom does not have `getComputedStyle`.
+  if (typeof getComputedStyle === 'function') {
+    const style = getComputedStyle(element);
+    switch (style.whiteSpace) {
+      case 'nowrap':
+      case 'pre':
+        return DomAction.Skip;
+    }
 
-  const display = style.display;
-  assert(display);
-  if (display === 'inline') return DomAction.Inline;
-  return DomAction.Block;
+    const display = style.display;
+    assert(display);
+    if (display !== 'inline') return DomAction.Block;
+  }
+  return DomAction.Inline;
 }
 
-class DomBlockContext {
+/**
+ * Represents a "paragraph", broken by block boundaries or forced breaks.
+ *
+ * A CSS
+ * {@link https://drafts.csswg.org/css2/#inline-formatting inline formatting context}
+ * is usually a "paragraph", but it can be broken into multiple paragraphs by
+ * forced breaks such as `<br>`.
+ */
+class Paragraph {
   element: HTMLElement;
   textNodes: Text[] = [];
 
@@ -113,31 +131,70 @@ class DomBlockContext {
     this.element = element;
   }
 
-  hasText() {
+  hasText(): boolean {
     return this.textNodes.length > 0;
   }
 }
 
-export class DomApplier {
+/**
+ * Applies the BudouX to the given DOM.
+ */
+export class Applier {
   private parser_: Parser;
-  separator: string = ZWSP;
+  /**
+   * The threshold score to control the granularity of chunks.
+   */
+  threshold: number = DEFAULT_THRES;
+  /**
+   * The separator to insert at each semantics boundary.
+   * The default value is U+200B ZERO WIDTH SPACE.
+   *
+   * When falsy, a `<wbr>` element is inserted.
+   */
+  separator?: string = ZWSP;
+  /**
+   * This class name is added to the containing block
+   * when the BudouX is applied.
+   *
+   * The caller is responsible for defining the class.
+   * {@link defineClassAs} can append a `<style>` element
+   * that defines the default styles as a class.
+   *
+   * When falsy, an inline style is set instead.
+   */
   className?: string;
 
+  /**
+   * @param parser A BudouX {@link Parser} to compute semantic line breaks.
+   */
   constructor(parser: Parser) {
     this.parser_ = parser;
   }
 
+  /**
+   * Applies markups for semantic line breaks to the given HTML element.
+   *
+   * It breaks descendant nodes into paragraphs,
+   * and applies the BudouX to each paragraph.
+   * @param element The input element.
+   */
   applyToElement(element: HTMLElement) {
     for (const block of this.getBlocks(element)) {
       assert(block.hasText());
-      this.applyToBlockContext(block.element, block.textNodes);
+      this.applyToParagraph(block);
     }
   }
 
+  /**
+   * Find paragraphs from a given HTML element.
+   * @param element The root element to find paragraphs.
+   * @param parent The parent {@link Paragraph} if any.
+   * @returns A list of {@link Paragraph}s.
+   */
   *getBlocks(
     element: HTMLElement,
-    parentBlock?: DomBlockContext
-  ): IterableIterator<DomBlockContext> {
+    parent?: Paragraph
+  ): IterableIterator<Paragraph> {
     assert(element.nodeType === NodeType.ELEMENT_NODE);
 
     // Skip if it was once applied to this element.
@@ -147,9 +204,9 @@ export class DomApplier {
     if (action === DomAction.Skip) return;
 
     if (action === DomAction.Break) {
-      if (parentBlock && parentBlock.hasText()) {
-        yield parentBlock;
-        parentBlock.textNodes = [];
+      if (parent && parent.hasText()) {
+        yield parent;
+        parent.textNodes = [];
       }
       assert(!element.firstChild);
       return;
@@ -158,8 +215,8 @@ export class DomApplier {
     // Determine if this element creates a new inline formatting context, or if
     // this element belongs to the parent inline formatting context.
     assert(action === DomAction.Block || action === DomAction.Inline);
-    const isNewBlock = !parentBlock || action === DomAction.Block;
-    const block = isNewBlock ? new DomBlockContext(element) : parentBlock;
+    const isNewBlock = !parent || action === DomAction.Block;
+    const block = isNewBlock ? new Paragraph(element) : parent;
     assert(block);
 
     // Collect all text nodes in this inline formatting context, while searching
@@ -180,7 +237,12 @@ export class DomApplier {
     if (isNewBlock && block.hasText()) yield block;
   }
 
-  applyToBlockContext(element: HTMLElement, textNodes: Text[]) {
+  /**
+   * Apply the BudouX to the given {@link Paragraph}.
+   * @param paragraph The {@link Paragraph} to apply.
+   */
+  applyToParagraph(paragraph: Paragraph): void {
+    const textNodes = paragraph.textNodes;
     assert(textNodes.length > 0);
     const texts = textNodes.map(node => node.nodeValue);
     const text = texts.join('');
@@ -188,7 +250,7 @@ export class DomApplier {
     if (/^\s*$/.test(text)) return;
 
     // Split the text into a list of phrases.
-    const phrases = this.parser_.parse(text);
+    const phrases = this.parser_.parse(text, this.threshold);
     assert(phrases.length > 0);
     assert(
       phrases.reduce((sum, phrase) => sum + phrase.length, 0) === text.length
@@ -214,10 +276,15 @@ export class DomApplier {
     assert(boundaries.length > 1);
 
     this.splitTextNodes(textNodes, boundaries);
-    this.applyBlockStyle(element);
+    this.applyBlockStyle(paragraph.element);
   }
 
-  splitTextNodes(textNodes: Text[], boundaries: number[]) {
+  /**
+   * Split {@link Text} nodes at the specified boundaries.
+   * @param textNodes A list of {@link Text}.
+   * @param boundaries A list of indices of the text to split at.
+   */
+  splitTextNodes(textNodes: Text[], boundaries: number[]): void {
     assert(boundaries.length > 0);
     const textLen = textNodes.reduce(
       (sum, node) => sum + (node.nodeValue ? node.nodeValue.length : 0),
@@ -267,7 +334,13 @@ export class DomApplier {
     assert(boundary_index === boundaries.length - 1);
   }
 
-  splitTextNode(node: Text, chunks: string[]) {
+  /**
+   * Split a {@link Text} node in the same way as the given chunks.
+   * @param node A {@link Text} node to split.
+   * @param chunks A list of {@link string} specifying where to split.
+   * Joining all {@link chunks} must be equal to {@link node.nodeValue}.
+   */
+  splitTextNode(node: Text, chunks: string[]): void {
     assert(chunks.length > 1);
     assert(node.nodeValue === chunks.join(''));
 
@@ -279,6 +352,7 @@ export class DomApplier {
 
     // Otherwise create a `Text` node for each chunk, with `<wbr>` between them,
     // and replace the `node` with them.
+    const document = node.ownerDocument;
     let nodes = [];
     for (const chunk of chunks) {
       nodes.push(document.createTextNode(chunk));
@@ -289,7 +363,11 @@ export class DomApplier {
     node.replaceWith(...nodes);
   }
 
-  applyBlockStyle(element: HTMLElement) {
+  /**
+   * Applies the block style to the given element.
+   * @param element The element to apply the block style.
+   */
+  applyBlockStyle(element: HTMLElement): void {
     if (this.className) {
       element.classList.add(this.className);
       return;
@@ -298,5 +376,16 @@ export class DomApplier {
     const style = element.style;
     style.wordBreak = 'keep-all';
     style.overflowWrap = 'break-word';
+  }
+
+  /**
+   * Append a `<style>` element that defines the default styles as a class.
+   * @param document The document to append to.
+   * @param className The CSS class name.
+   */
+  static defineClassAs(document: Document, className: string): void {
+    const style = document.createElement('style');
+    style.textContent = `.${className} { word-break: keep-all; overflow-wrap: break-word; }`;
+    document.head.appendChild(style);
   }
 }

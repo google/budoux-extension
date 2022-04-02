@@ -125,6 +125,17 @@ describe('DomApplier.getBlocks', () => {
     ]);
   });
 
+  it('should collect inline-blocks separately from the parent block', () => {
+    expect(
+      getBlocks('<div>123<div style="display: inline-block">456</div>789</div>')
+    ).toEqual(['456', '123789']);
+    expect(
+      getBlocks(
+        '<div>123<span style="display: inline-block">456</span>789</div>'
+      )
+    ).toEqual(['456', '123789']);
+  });
+
   it('should skip textarea elements', () => {
     expect(getBlocks('<textarea>123</textarea>')).toEqual([]);
   });

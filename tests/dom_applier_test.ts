@@ -128,6 +128,12 @@ describe('DomApplier.getBlocks', () => {
   it('should skip textarea elements', () => {
     expect(getBlocks('<textarea>123</textarea>')).toEqual([]);
   });
+
+  it('should skip <rt> and <rp> elements for <ruby>', () => {
+    expect(
+      getBlocks('before<ruby>b1<rp>(</rp><rt>r1</rt>b2<rt>r2</rt></ruby>after')
+    ).toEqual(['beforeb1b2after']);
+  });
 });
 
 describe('DomApplier.splitTextNodes', () => {

@@ -157,6 +157,7 @@ export class DomApplier {
 
     // Determine if this element creates a new inline formatting context, or if
     // this element belongs to the parent inline formatting context.
+    assert(action === DomAction.Block || action === DomAction.Inline);
     const isNewBlock = !parentBlock || action === DomAction.Block;
     const block = isNewBlock ? new DomBlockContext(element) : parentBlock;
     assert(block);

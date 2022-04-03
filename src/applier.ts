@@ -303,7 +303,7 @@ export class Applier {
 
       // Check if the next boundary is in this `node`.
       const nodeEnd = nodeStart + nodeText.length;
-      if (boundary > nodeEnd) {
+      if (boundary >= nodeEnd) {
         nodeStart = nodeEnd;
         continue;
       }
@@ -311,9 +311,9 @@ export class Applier {
       // Compute the boundary indices in the `nodeText`.
       const chunks = [];
       let chunkStartInNode = 0;
-      while (boundary <= nodeEnd) {
+      while (boundary < nodeEnd) {
         const boundaryInNode = boundary - nodeStart;
-        assert(boundaryInNode > chunkStartInNode);
+        assert(boundaryInNode >= chunkStartInNode);
         chunks.push(nodeText.substring(chunkStartInNode, boundaryInNode));
         chunkStartInNode = boundaryInNode;
         ++boundary_index;
@@ -323,7 +323,8 @@ export class Applier {
       assert(chunks.length > 0);
 
       // Add the rest of the `nodeText` and split the `node`.
-      chunks.push(nodeText.substring(chunkStartInNode));
+      if (chunkStartInNode < nodeText.length)
+        chunks.push(nodeText.substring(chunkStartInNode));
       this.splitTextNode(node, chunks);
 
       nodeStart = nodeEnd;
@@ -331,7 +332,8 @@ export class Applier {
 
     // Check if all nodes and boundaries are consumed.
     assert(nodeStart === textLen);
-    assert(boundary_index === boundaries.length - 1);
+    assert(boundary_index < boundaries.length);
+    assert(boundaries[boundary_index] >= textLen);
   }
 
   /**
@@ -355,7 +357,7 @@ export class Applier {
     const document = node.ownerDocument;
     let nodes = [];
     for (const chunk of chunks) {
-      nodes.push(document.createTextNode(chunk));
+      if (chunk) nodes.push(document.createTextNode(chunk));
       nodes.push(null);
     }
     nodes.pop();

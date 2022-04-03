@@ -62,7 +62,7 @@ describe('Applier.applyToElement', () => {
     },
     {
       in: '<div><span>今日は</span>晴れです</div>',
-      out: '<div class="applied"><span>今日は/</span>晴れです</div>',
+      out: '<div class="applied"><span>今日は</span>/晴れです</div>',
     },
     {
       in: '<div><span>今日は晴れ</span>です</div>',
@@ -71,6 +71,10 @@ describe('Applier.applyToElement', () => {
     {
       in: '<textarea>今日は晴れです</textarea>',
       out: '<textarea>今日は晴れです</textarea>',
+    },
+    {
+      in: '<div>今日は<code>code</code>晴れです</div>',
+      out: '<div class="applied">今日は<code>code</code>/晴れです</div>',
     },
   ]) {
     it(test.in, () => {
@@ -181,6 +185,14 @@ describe('Applier.splitTextNodes', () => {
     expect(split([node123], [4])).toEqual([]);
   });
 
+  it('should not split single node at the end', () => {
+    expect(split([node123], [3, 4])).toEqual([]);
+  });
+
+  it('should not split two nodes at the end', () => {
+    expect(split([node123, node456], [6, 7])).toEqual([]);
+  });
+
   it('should split single node at the middle', () => {
     expect(split([node123], [2, 4])).toEqual([
       {node: node123, chunks: ['12', '3']},
@@ -190,12 +202,6 @@ describe('Applier.splitTextNodes', () => {
   it('should split the first node twice', () => {
     expect(split([node123], [1, 2, 4])).toEqual([
       {node: node123, chunks: ['1', '2', '3']},
-    ]);
-  });
-
-  it('should split single node at the end', () => {
-    expect(split([node123], [3, 4])).toEqual([
-      {node: node123, chunks: ['123', '']},
     ]);
   });
 
@@ -211,9 +217,9 @@ describe('Applier.splitTextNodes', () => {
     ]);
   });
 
-  it('should split the first node at the end', () => {
+  it('should split the second node at the start', () => {
     expect(split([node123, node456], [3, 7])).toEqual([
-      {node: node123, chunks: ['123', '']},
+      {node: node456, chunks: ['', '456']},
     ]);
   });
 
@@ -245,8 +251,8 @@ describe('Applier.splitTextNodes', () => {
 
   it('should split at every character', () => {
     expect(split([node123, node456], [1, 2, 3, 4, 5, 7])).toEqual([
-      {node: node123, chunks: ['1', '2', '3', '']},
-      {node: node456, chunks: ['4', '5', '6']},
+      {node: node123, chunks: ['1', '2', '3']},
+      {node: node456, chunks: ['', '4', '5', '6']},
     ]);
   });
 });

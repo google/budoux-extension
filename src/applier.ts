@@ -138,6 +138,15 @@ class Paragraph {
 
 /**
  * Applies the BudouX to the given DOM.
+ *
+ * This class has following advantages over
+ * {@link Applier.applyToElement}.
+ * * It recognizes paragraphs and applies the BudouX for each
+ *   paragraph separately.
+ * * It can customize how to insert break opportunities.
+ *   See {@link separator} for more details.
+ * * It uses CSS properties to understand the document
+ *   structure.
  */
 export class Applier {
   private parser_: Parser;

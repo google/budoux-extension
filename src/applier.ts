@@ -145,8 +145,8 @@ class Paragraph {
  *   paragraph separately.
  * * It can customize how to insert break opportunities.
  *   See {@link separator} for more details.
- * * It uses CSS properties to understand the document
- *   structure.
+ * * It is generally faster and more memory efficient, but the
+ *   code size is larger.
  */
 export class Applier {
   private parser_: Parser;

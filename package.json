@@ -24,7 +24,7 @@
   "dependencies": {
     "@material/mwc-button": "^0.25.3",
     "@material/mwc-formfield": "^0.25.3",
-    "@material/mwc-radio": "^0.25.3",
+    "@material/mwc-radio": "^0.26.0",
     "@material/mwc-textfield": "^0.25.3",
     "budoux": "^0.1.0"
   },

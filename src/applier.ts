@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Parser, DEFAULT_THRES} from 'budoux';
+import {Parser} from 'budoux';
 
 const assert = console.assert;
 
@@ -151,10 +151,6 @@ class Paragraph {
 export class Applier {
   private parser_: Parser;
   /**
-   * The threshold score to control the granularity of chunks.
-   */
-  threshold: number = DEFAULT_THRES;
-  /**
    * The separator to insert at each semantics boundary.
    * The default value is U+200B ZERO WIDTH SPACE.
    *
@@ -259,7 +255,7 @@ export class Applier {
     if (/^\s*$/.test(text)) return;
 
     // Split the text into a list of phrases.
-    const phrases = this.parser_.parse(text, this.threshold);
+    const phrases = this.parser_.parse(text);
     assert(phrases.length > 0);
     assert(
       phrases.reduce((sum, phrase) => sum + phrase.length, 0) === text.length

@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@types/archiver": "^5.3.1",
-    "@types/chrome": "^0.0.193",
+    "@types/chrome": "^0.0.196",
     "@types/jasmine": "^4.0.0",
     "@types/jsdom": "^20.0.0",
     "@types/node": "^18.0.0",

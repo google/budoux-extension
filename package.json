@@ -22,7 +22,7 @@
   "author": "Koji Ishii",
   "license": "Apache-2.0",
   "dependencies": {
-    "@material/mwc-button": "^0.26.1",
+    "@material/mwc-button": "^0.27.0",
     "@material/mwc-formfield": "^0.26.1",
     "@material/mwc-radio": "^0.27.0",
     "@material/mwc-textfield": "^0.26.1",

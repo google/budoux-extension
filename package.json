@@ -38,7 +38,7 @@
     "commander": "^11.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "glob": "^10.2.7",
-    "gts": "^3.1.0",
+    "gts": "^5.0.0",
     "jasmine": "^5.1.0",
     "jsdom": "^22.1.0",
     "ts-loader": "^9.2.6",

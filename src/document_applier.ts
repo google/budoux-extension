@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {loadDefaultJapaneseParser} from 'budoux';
-import {Applier} from './applier';
+import {loadDefaultJapaneseParser, HTMLProcessor} from 'budoux';
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 let logger: (...data: any[]) => void;
@@ -37,14 +36,25 @@ export class DocumentApplier {
       docApplier = new DocumentApplier();
       // @ts-expect-error Use a dynamic property of the document.
       document.budouX = docApplier;
-      Applier.defineClassAs(document, className);
+      DocumentApplier.defineClassAs(document, className);
     }
     return docApplier;
   }
 
+  /**
+   * Append a `<style>` element that defines the default styles as a class.
+   * @param document The document to append to.
+   * @param className The CSS class name.
+   */
+  static defineClassAs(document: Document, className: string): void {
+    const style = document.createElement('style');
+    style.textContent = `.${className} { word-break: keep-all; overflow-wrap: anywhere; }`;
+    document.head.appendChild(style);
+  }
+
   async applyToDocument() {
     const parser = loadDefaultJapaneseParser();
-    const applier = new Applier(parser);
+    const applier = new HTMLProcessor(parser);
     applier.className = className;
 
     if ('chrome' in window && 'storage' in chrome) {

@@ -19,7 +19,9 @@
     "dist": "ts-node scripts/package.ts -d dist --js build/bundle",
     "prezip": "npm run clean && npm run dist",
     "zip": "ts-node scripts/package.ts -d dist --zip budoux.zip",
-    "test": "ts-node node_modules/jasmine/bin/jasmine tests/*.ts",
+    "bundle:test": "esbuild build/tests/index.browser.js --outdir=build/bundle --bundle --minify --sourcemap",
+    "pretest": "npm run tsc:es && npm run bundle:test",
+    "test": "karma start --single-run",
     "lint": "gts lint",
     "fix": "gts fix",
     "clean": "node scripts/clean.js && gts clean"
@@ -46,6 +48,9 @@
     "gts": "^5.0.0",
     "jasmine": "^5.1.0",
     "jsdom": "^22.1.0",
+    "karma": "^6.4.2",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-jasmine": "^5.1.0",
     "ts-node": "^10.4.0",
     "typescript": "^5.1.3"
   }

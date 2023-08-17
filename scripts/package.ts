@@ -17,6 +17,7 @@
 import * as archiver from 'archiver';
 import {Command} from 'commander';
 import * as fs from 'fs';
+import * as path from 'path';
 
 const log = console.log;
 
@@ -27,16 +28,43 @@ function throwMissingArg(name: string): never {
 class ChromeExtensionPackage {
   async run() {
     const program = new Command();
-    program.option('-d, --dir <dir>', 'unpacked extension directory', 'dist');
-    program.option('-z, --zip <zip>', 'ZIP file name', 'budoux.zip');
+    program.option('-d, --dir <dir>', 'unpacked extension directory');
+    program.option('-j --js <dir>', 'JavaScript directory');
+    program.option('-z, --zip <zip>', 'ZIP file name');
     program.parse(process.argv);
     const options = program.opts();
-    const zip_path = options.zip ?? throwMissingArg('ZIP file name');
-    const src_dir = options.dir ?? throwMissingArg('extension directory');
-    await this.zip(src_dir, zip_path);
+    const dist_dir = options.dir ?? throwMissingArg('extension directory');
+    const js_dir = options.js;
+    if (js_dir) {
+      await this.copy(js_dir, dist_dir);
+    }
+    const zip_path = options.zip;
+    if (zip_path) {
+      await this.zip(dist_dir, zip_path);
+    }
+  }
+
+  async copy(js_dir: string, dist_dir: string) {
+    if (!fs.existsSync(dist_dir)) {
+      await fs.promises.mkdir(dist_dir, {recursive: true});
+    }
+    const bundles = ['background.js', 'content.js', 'options.js'];
+    const files = bundles
+      .map(name => path.join(js_dir, name))
+      .concat(['manifest.json', 'src/options.html', 'docs/icon128.png']);
+    await Promise.all(
+      files.map(src => {
+        const dist = path.join(dist_dir, path.basename(src));
+        log(`Copying ${src} -> ${dist}`);
+        return fs.promises.copyFile(src, dist);
+      })
+    );
   }
 
   async zip(src_dir: string, zip_path: string) {
+    if (!fs.existsSync(src_dir)) {
+      throw new Error(`Directory not found: ${src_dir}`);
+    }
     const output = fs.createWriteStream(zip_path);
     const closed_or_ended = new Promise<void>(resolve => {
       output.on('close', resolve);

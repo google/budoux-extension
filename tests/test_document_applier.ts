@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import 'jasmine';
-import {JSDOM} from 'jsdom';
 import {DocumentApplier} from '../src/document_applier';
+
+const documentFromString = (html: string) => {
+  return new DOMParser().parseFromString(html, 'text/html');
+};
 
 describe('DocumentApplier.fromDocument', () => {
   it('should get the same instance', () => {
-    const dom = new JSDOM('');
-    const doc = dom.window.document;
+    const doc = documentFromString('');
     const applier = DocumentApplier.fromDocument(doc);
     expect(DocumentApplier.fromDocument(doc)).toEqual(applier);
   });
 
   it('should add a style element', () => {
-    const dom = new JSDOM('');
-    const doc = dom.window.document;
+    const doc = documentFromString('');
     DocumentApplier.fromDocument(doc);
     const elements = doc.getElementsByTagName('style');
     expect(elements.length).toEqual(1);

@@ -19,7 +19,7 @@
     "dist": "ts-node scripts/package.ts -d dist --js build/bundle",
     "prezip": "npm run clean && npm run dist",
     "zip": "ts-node scripts/package.ts -d dist --zip budoux.zip",
-    "bundle:test": "esbuild build/tests/index.browser.js --outdir=build/bundle --bundle --minify --sourcemap",
+    "bundle:test": "esbuild build/tests/index.browser.js --outdir=build/bundle --bundle --sourcemap",
     "pretest": "npm run tsc:es && npm run bundle:test",
     "test": "karma start --single-run",
     "lint": "gts lint",

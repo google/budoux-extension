@@ -36,3 +36,14 @@ describe('DocumentApplier.fromDocument', () => {
     expect(element.textContent).toMatch(/^\.BudouX {.*}$/);
   });
 });
+
+describe('DocumentApplier.apply', () => {
+  it('should apply', async () => {
+    const doc = documentFromString('<div>今日は良い天気です。</div>');
+    const applier = DocumentApplier.fromDocument(doc);
+    await applier.apply();
+    expect(doc.body.innerHTML).toEqual(
+      '<div class="BudouX">今日は\u200B良い\u200B天気です。</div>'
+    );
+  });
+});

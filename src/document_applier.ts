@@ -28,15 +28,21 @@ function logDebug(...args: any[]) {
 const className = 'BudouX';
 
 export class DocumentApplier {
-  static fromDocument(document: Document) {
+  private document: Document;
+
+  constructor(document: Document) {
+    this.document = document;
+  }
+
+  static fromDocument(document: Document): DocumentApplier {
     // @ts-expect-error Use a dynamic property of the document.
     let docApplier = document.budouX;
     logDebug('fromDocument: ', docApplier);
     if (!docApplier) {
-      docApplier = new DocumentApplier();
+      docApplier = new DocumentApplier(document);
       // @ts-expect-error Use a dynamic property of the document.
       document.budouX = docApplier;
-      DocumentApplier.defineClassAs(document, className);
+      docApplier.defineClassAs(className);
     }
     return docApplier;
   }
@@ -46,13 +52,14 @@ export class DocumentApplier {
    * @param document The document to append to.
    * @param className The CSS class name.
    */
-  static defineClassAs(document: Document, className: string): void {
+  private defineClassAs(className: string): void {
+    const document = this.document;
     const style = document.createElement('style');
     style.textContent = `.${className} { word-break: keep-all; overflow-wrap: anywhere; }`;
     document.head.appendChild(style);
   }
 
-  async applyToDocument() {
+  async apply() {
     const parser = loadDefaultJapaneseParser();
     const applier = new HTMLProcessor(parser);
     applier.className = className;
@@ -71,6 +78,7 @@ export class DocumentApplier {
       });
     }
 
+    const document = this.document;
     await this.waitForDOMContentLoaded(document);
 
     applier.applyToElement(document.body);

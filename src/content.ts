@@ -16,4 +16,4 @@
 
 import {DocumentApplier} from './document_applier';
 
-DocumentApplier.fromDocument(document).applyToDocument();
+DocumentApplier.fromDocument(document).apply();

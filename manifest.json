@@ -2,7 +2,7 @@
   "name": "BudouX",
   "action": {},
   "description": "文節区切りの改行をページに適用します。オプションで、わかち書きも可能です。",
-  "version": "0.1.9",
+  "version": "0.5.2",
   "manifest_version": 3,
   "permissions": [
     "activeTab",

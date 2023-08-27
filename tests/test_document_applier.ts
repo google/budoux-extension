@@ -47,3 +47,54 @@ describe('DocumentApplier.apply', () => {
     );
   });
 });
+
+describe('DocumentApplier.normalizeLocale', () => {
+  [
+    [undefined, undefined],
+    ['', undefined],
+    // `ja` doesn't require the script.
+    ['ja', 'ja'],
+    ['ja-JP', 'ja'],
+    // `zh` requires the script.
+    ['zh', 'zh-hans'],
+    ['zh-Hans', 'zh-hans'],
+    ['zh-Hant', 'zh-hant'],
+    ['zh-hant', 'zh-hant'],
+    ['zh-HanT', 'zh-hant'],
+    // Check if the script matches the whole string, not substring.
+    ['zh-zHant', 'zh-hans'],
+    ['zh-Hantz', 'zh-hans'],
+    // The default script from the region.
+    ['zh-CN', 'zh-hans'],
+    ['zh-HK', 'zh-hant'],
+    ['zh-MO', 'zh-hant'],
+    ['zh-TW', 'zh-hant'],
+    ['zh-tw', 'zh-hant'],
+    // Check if the region matches the whole string, not substring.
+    ['zh-ztw', 'zh-hans'],
+    ['zh-twz', 'zh-hans'],
+    // If the script is given, the region should be ignored.
+    ['zh-hant-CN', 'zh-hant'],
+    ['zh-CN-hant', 'zh-hant'],
+  ].forEach(args => {
+    const [input, expected] = args;
+    it(`Locale "${input}" should be normalized to "${expected}"`, () => {
+      const result = DocumentApplier.normalizeLocale(input);
+      expect(result).toEqual(expected);
+    });
+  });
+});
+
+describe('DocumentApplier.langFromElement', () => {
+  [
+    ['<html lang="ja"></html>', 'ja'],
+    ['<html lang="ja"><body lang="zh"></body></html>', 'zh'],
+  ].forEach(args => {
+    const [html, expected] = args;
+    it(`HTML "${html}" should have lang "${expected}"`, () => {
+      const doc = documentFromString(html);
+      const element = doc.body ?? doc.documentElement;
+      expect(DocumentApplier.langFromElement(element)).toEqual(expected);
+    });
+  });
+});

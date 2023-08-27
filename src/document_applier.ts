@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import {loadDefaultJapaneseParser, HTMLProcessor} from 'budoux';
+import {
+  loadDefaultJapaneseParser,
+  loadDefaultParsers,
+  HTMLProcessor,
+  Parser,
+} from 'budoux';
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 let logger: (...data: any[]) => void;
@@ -60,7 +65,7 @@ export class DocumentApplier {
   }
 
   async apply() {
-    const parser = loadDefaultJapaneseParser();
+    const parser = this.loadParser();
     const applier = new HTMLProcessor(parser);
     applier.className = className;
 
@@ -82,6 +87,49 @@ export class DocumentApplier {
     await this.waitForDOMContentLoaded(document);
 
     applier.applyToElement(document.body);
+  }
+
+  private loadParser(): Parser {
+    const document = this.document;
+    const element = document.body ?? document.documentElement;
+    let lang = DocumentApplier.langFromElement(element);
+    lang = DocumentApplier.normalizeLocale(lang);
+    if (lang) {
+      const parsers = loadDefaultParsers();
+      const parser = parsers.get(lang);
+      if (parser) return parser;
+    }
+    console.warn(`No parser for "${lang}", using the Japanese parser.`);
+    return loadDefaultJapaneseParser();
+  }
+
+  static normalizeLocale(locale?: string): string | undefined {
+    if (!locale) return undefined;
+    let subtags = locale.split('-');
+    if (!subtags.length) return undefined;
+    const lang = subtags[0];
+    if (lang === 'zh') {
+      // `zh` requires the script subtag.
+      subtags = subtags.slice(1);
+      for (const subtag of subtags) {
+        if (subtag.match(/^han[st]$/i))
+          return `${lang}-${subtag.toLowerCase()}`;
+      }
+      // If neither `hans` nor `hant`, check the region or the macrolanguage.
+      for (const subtag of subtags) {
+        if (subtag.match(/^(hk|mo|tw|hak|lzh|nan|yue)$/i)) return 'zh-hant';
+      }
+      return 'zh-hans';
+    }
+    return lang;
+  }
+
+  static langFromElement(element: HTMLElement | null): string | undefined {
+    for (; element; element = element.parentElement) {
+      const lang = element.lang;
+      if (lang) return lang;
+    }
+    return undefined;
   }
 
   async waitForDOMContentLoaded(document: Document) {

@@ -59,6 +59,9 @@ describe('DocumentApplier.normalizeLocale', () => {
     ['zh', 'zh-hans'],
     ['zh-Hans', 'zh-hans'],
     ['zh-Hant', 'zh-hant'],
+    // Check upper/lower cases.
+    ['JA', 'ja'],
+    ['ZH', 'zh-hans'],
     ['zh-hant', 'zh-hant'],
     ['zh-HanT', 'zh-hant'],
     // Check if the script matches the whole string, not substring.
@@ -70,6 +73,7 @@ describe('DocumentApplier.normalizeLocale', () => {
     ['zh-MO', 'zh-hant'],
     ['zh-TW', 'zh-hant'],
     ['zh-tw', 'zh-hant'],
+    ['ZH-tw', 'zh-hant'],
     // Check if the region matches the whole string, not substring.
     ['zh-ztw', 'zh-hans'],
     ['zh-twz', 'zh-hans'],

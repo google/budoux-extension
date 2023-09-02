@@ -107,7 +107,8 @@ export class DocumentApplier {
     if (!locale) return undefined;
     let subtags = locale.split('-');
     if (!subtags.length) return undefined;
-    const lang = subtags[0];
+    // The first subtag is the language.
+    const lang = subtags[0].toLowerCase();
     if (lang === 'zh') {
       // `zh` requires the script subtag.
       subtags = subtags.slice(1);

@@ -1,0 +1,24 @@
+{
+  "appDesc": {
+    "message": "Applies BudouX to the page, which keeps natural phrases together when line wrapping.",
+    "description": "The description of the extension, displayed in the web store."
+  },
+  "applyMenuTitle": {
+    "message": "Apply BudouX"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "insertZWSP": {
+    "message": "Wrap at phrase boundaries (insert a Zero Width Space)"
+  },
+  "insertSpace": {
+    "message": "Insert a space"
+  },
+  "insertFullwidthSpace": {
+    "message": "Insert a full-width space"
+  },
+  "insertUserText": {
+    "message": "Insert:"
+  }
+}

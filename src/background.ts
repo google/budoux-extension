@@ -40,7 +40,7 @@ async function applyBudouX(tab?: chrome.tabs.Tab, frameId?: number) {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: 'BudouX',
-    title: 'BudouX を適用する',
+    title: chrome.i18n.getMessage('applyMenuTitle'),
     contexts: ['all'],
   });
 });

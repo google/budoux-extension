@@ -1,0 +1,23 @@
+{
+  "appDesc": {
+    "message": "文節区切りの改行をページに適用します。オプションで、わかち書きも可能です。"
+  },
+  "applyMenuTitle": {
+    "message": "BudouX を適用する"
+  },
+  "save": {
+    "message": "保存する"
+  },
+  "insertZWSP": {
+    "message": "文節区切りで改行（ゼロ幅空白を挿入）"
+  },
+  "insertSpace": {
+    "message": "わかち書き（半角空白を挿入）"
+  },
+  "insertFullwidthSpace": {
+    "message": "わかち書き（全角空白を挿入）"
+  },
+  "insertUserText": {
+    "message": "指定文字列を挿入:"
+  }
+}

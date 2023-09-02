@@ -69,6 +69,24 @@ function restoreOptions() {
   );
 }
 
+function localizeString(str: string): string {
+  return str.replace(/__MSG_(\w+)__/g, (match, name) =>
+    name ? chrome.i18n.getMessage(name) : ''
+  );
+}
+
+function localize() {
+  for (const element of document.querySelectorAll(
+    'mwc-button, mwc-formfield'
+  )) {
+    const label = element.getAttribute('label');
+    if (label) {
+      element.setAttribute('label', localizeString(label));
+    }
+  }
+}
+
+localize();
 document.addEventListener('DOMContentLoaded', restoreOptions);
 saveButton.addEventListener('click', saveOptions);
 separatorText.addEventListener('input', checkOtherIfNeeded);

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /**
  * @license
  * Copyright 2021 Google LLC
@@ -17,6 +18,7 @@
 import * as archiver from 'archiver';
 import {Command} from 'commander';
 import * as fs from 'fs';
+const {glob} = require('glob');
 import * as path from 'path';
 
 const log = console.log;
@@ -48,15 +50,28 @@ class ChromeExtensionPackage {
     if (!fs.existsSync(dist_dir)) {
       await fs.promises.mkdir(dist_dir, {recursive: true});
     }
-    const bundles = ['background.js', 'content.js', 'options.js'];
-    const files = bundles
-      .map(name => path.join(js_dir, name))
-      .concat(['manifest.json', 'src/options.html', 'docs/icon128.png']);
+    // Bundles are copied from `js_dir` to the root of `dist_dir`.
+    const bundles = ['background.js', 'content.js', 'options.js']
+      .map(name => [path.join(js_dir, name), name]);
+    // Resources are copied to the root of `dist_dir`.
+    const resources = [
+      'manifest.json',
+      'src/options.html',
+      'docs/icon128.png',
+    ].map(name => [name, path.basename(name)]);
+    // Locales are copied to the `dist_dir` keeping the tree structure.
+    const locales: string[][] = (await glob('_locales/**/*.json'))
+      .map((name: string) => [name, name]);
+    const files = [...bundles, ...resources, ...locales]
+      .map(([src, dest]) => [src, path.join(dist_dir, dest)]);
+    for (const [, dest] of files) {
+      const dir = path.dirname(dest);
+      if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, {recursive: true});
+    }
     await Promise.all(
-      files.map(src => {
-        const dist = path.join(dist_dir, path.basename(src));
-        log(`Copying ${src} -> ${dist}`);
-        return fs.promises.copyFile(src, dist);
+      files.map(([src, dest]) => {
+        log(`Copying ${src} -> ${dest}`);
+        return fs.promises.copyFile(src, dest);
       })
     );
   }

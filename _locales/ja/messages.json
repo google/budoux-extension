@@ -8,13 +8,13 @@
   "save": {
     "message": "保存する"
   },
-  "insertZWSP": {
+  "insertZwSpace": {
     "message": "文節区切りで改行（ゼロ幅空白を挿入）"
   },
   "insertSpace": {
     "message": "わかち書き（半角空白を挿入）"
   },
-  "insertFullwidthSpace": {
+  "insertIdeoSpace": {
     "message": "わかち書き（全角空白を挿入）"
   },
   "insertUserText": {

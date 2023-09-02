@@ -9,14 +9,14 @@
   "save": {
     "message": "Save"
   },
-  "insertZWSP": {
+  "insertZwSpace": {
     "message": "Wrap at phrase boundaries (insert a Zero Width Space)"
   },
   "insertSpace": {
     "message": "Insert a space"
   },
-  "insertFullwidthSpace": {
-    "message": "Insert a full-width space"
+  "insertIdeoSpace": {
+    "message": "Insert an ideographic space"
   },
   "insertUserText": {
     "message": "Insert:"

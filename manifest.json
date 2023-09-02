@@ -1,7 +1,8 @@
 {
   "name": "BudouX",
   "action": {},
-  "description": "文節区切りの改行をページに適用します。オプションで、わかち書きも可能です。",
+  "description": "__MSG_appDesc__",
+  "default_locale": "en",
   "version": "0.5.2",
   "manifest_version": 3,
   "permissions": [

@@ -49,6 +49,23 @@ describe('DocumentApplier.apply', () => {
       '<div class="BudouX">今日は\u200B良い\u200B天気です。</div>'
     );
   });
+
+  it('Use the customized separator', async () => {
+    const doc = documentFromString(
+      '<html lang="ja"><div>今日は良い天気です。</div></html>'
+    );
+    const separator = '|';
+    class SpaceSeparatedApplier extends DocumentApplier {
+      async loadSettings() {
+        this.separator = separator;
+      }
+    }
+    const applier = new SpaceSeparatedApplier(doc);
+    await applier.apply();
+    expect(doc.body.innerHTML).toEqual(
+      `<div class="BudouX">今日は${separator}良い${separator}天気です。</div>`
+    );
+  });
 });
 
 describe('DocumentApplier.normalizeLocale', () => {

@@ -32,7 +32,7 @@ function logDebug(...args: any[]) {
 
 export class DocumentApplier {
   private document: Document;
-  private separator = '\u200B';
+  protected separator = '\u200B';
   private className = 'BudouX';
   private isClassDefined = false;
 
@@ -55,8 +55,10 @@ export class DocumentApplier {
   async apply() {
     await this.loadSettings();
     const parser = this.loadParser();
-    const applier = new HTMLProcessor(parser);
-    applier.className = this.className;
+    const applier = new HTMLProcessor(parser, {
+      className: this.className,
+      separator: this.separator,
+    });
 
     const document = this.document;
     await this.waitForDOMContentLoaded(document);
@@ -79,7 +81,7 @@ export class DocumentApplier {
     return loadDefaultJapaneseParser();
   }
 
-  private async loadSettings() {
+  protected async loadSettings() {
     if ('chrome' in window && 'storage' in chrome) {
       await new Promise<void>(resolve => {
         chrome.storage.sync.get(

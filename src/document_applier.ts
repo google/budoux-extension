@@ -30,10 +30,11 @@ function logDebug(...args: any[]) {
   if (logger) logger(...args);
 }
 
-const className = 'BudouX';
-
 export class DocumentApplier {
   private document: Document;
+  private separator = '\u200B';
+  private className = 'BudouX';
+  private isClassDefined = false;
 
   constructor(document: Document) {
     this.document = document;
@@ -47,45 +48,20 @@ export class DocumentApplier {
       docApplier = new DocumentApplier(document);
       // @ts-expect-error Use a dynamic property of the document.
       document.budouX = docApplier;
-      docApplier.defineClassAs(className);
     }
     return docApplier;
   }
 
-  /**
-   * Append a `<style>` element that defines the default styles as a class.
-   * @param document The document to append to.
-   * @param className The CSS class name.
-   */
-  private defineClassAs(className: string): void {
-    const document = this.document;
-    const style = document.createElement('style');
-    style.textContent = `.${className} { word-break: keep-all; overflow-wrap: anywhere; }`;
-    document.head.appendChild(style);
-  }
-
   async apply() {
+    await this.loadSettings();
     const parser = this.loadParser();
     const applier = new HTMLProcessor(parser);
-    applier.className = className;
-
-    if ('chrome' in window && 'storage' in chrome) {
-      await new Promise<void>(resolve => {
-        chrome.storage.sync.get(
-          {
-            separator: '\u200B',
-          },
-          items => {
-            applier.separator = items.separator;
-            resolve();
-          }
-        );
-      });
-    }
+    applier.className = this.className;
 
     const document = this.document;
     await this.waitForDOMContentLoaded(document);
 
+    this.ensureClass();
     applier.applyToElement(document.body);
   }
 
@@ -101,6 +77,32 @@ export class DocumentApplier {
     }
     console.warn(`No parser for "${lang}", using the Japanese parser.`);
     return loadDefaultJapaneseParser();
+  }
+
+  private async loadSettings() {
+    if ('chrome' in window && 'storage' in chrome) {
+      await new Promise<void>(resolve => {
+        chrome.storage.sync.get(
+          {
+            separator: this.separator,
+          },
+          items => {
+            this.separator = items.separator;
+            resolve();
+          }
+        );
+      });
+    }
+  }
+
+  private ensureClass(): void {
+    if (this.isClassDefined || !this.className) return;
+    this.isClassDefined = true;
+
+    const document = this.document;
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `.${this.className} { word-break: keep-all; overflow-wrap: anywhere; }`;
+    document.head.appendChild(styleElement);
   }
 
   static normalizeLocale(locale?: string): string | undefined {

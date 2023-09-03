@@ -22,14 +22,15 @@ const documentFromString = (html: string) => {
 
 describe('DocumentApplier.fromDocument', () => {
   it('should get the same instance', () => {
-    const doc = documentFromString('');
+    const doc = documentFromString('<html lang="ja"></html>');
     const applier = DocumentApplier.fromDocument(doc);
     expect(DocumentApplier.fromDocument(doc)).toEqual(applier);
   });
 
-  it('should add a style element', () => {
-    const doc = documentFromString('');
-    DocumentApplier.fromDocument(doc);
+  it('should add a style element', async () => {
+    const doc = documentFromString('<html lang="ja"></html>');
+    const applier = DocumentApplier.fromDocument(doc);
+    await applier.apply();
     const elements = doc.getElementsByTagName('style');
     expect(elements.length).toEqual(1);
     const element = elements[0];
@@ -39,7 +40,9 @@ describe('DocumentApplier.fromDocument', () => {
 
 describe('DocumentApplier.apply', () => {
   it('should apply', async () => {
-    const doc = documentFromString('<div>今日は良い天気です。</div>');
+    const doc = documentFromString(
+      '<html lang="ja"><div>今日は良い天気です。</div></html>'
+    );
     const applier = DocumentApplier.fromDocument(doc);
     await applier.apply();
     expect(doc.body.innerHTML).toEqual(

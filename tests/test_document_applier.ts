@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { sep } from 'path';
 import {DocumentApplier} from '../src/document_applier';
 
 const documentFromString = (html: string) => {
@@ -50,22 +51,23 @@ describe('DocumentApplier.apply', () => {
     );
   });
 
-  it('Use the customized separator', async () => {
-    const doc = documentFromString(
-      '<html lang="ja"><div>今日は良い天気です。</div></html>'
-    );
-    const separator = '|';
-    class SpaceSeparatedApplier extends DocumentApplier {
-      async loadSettings() {
-        this.separator = separator;
+  for (const separator of [' ', '|']) {
+    it(`Use the customized separator "${separator}"`, async () => {
+      const doc = documentFromString(
+        '<html lang="ja"><div>今日は良い天気です。</div></html>'
+      );
+      class CustomSeparatedApplier extends DocumentApplier {
+        async loadSettings() {
+          this.separator = separator;
+        }
       }
-    }
-    const applier = new SpaceSeparatedApplier(doc);
-    await applier.apply();
-    expect(doc.body.innerHTML).toEqual(
-      `<div class="BudouX">今日は${separator}良い${separator}天気です。</div>`
-    );
-  });
+      const applier = new CustomSeparatedApplier(doc);
+      await applier.apply();
+      expect(doc.body.innerHTML).toEqual(
+        `<div class="BudouX">今日は${separator}良い${separator}天気です。</div>`
+      );
+    });
+  }
 });
 
 describe('DocumentApplier.normalizeLocale', () => {

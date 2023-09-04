@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { sep } from 'path';
 import {DocumentApplier} from '../src/document_applier';
 
 const documentFromString = (html: string) => {

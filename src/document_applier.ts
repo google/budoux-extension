@@ -21,13 +21,13 @@ import {
   Parser,
 } from 'budoux';
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-let logger: (...data: any[]) => void;
-// logger = console.log;
+const isDebug = false;
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 function logDebug(...args: any[]) {
-  if (logger) logger(...args);
+  if (isDebug) {
+    console.log(...args);
+  }
 }
 
 export class DocumentApplier {

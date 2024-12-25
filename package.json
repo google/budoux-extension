@@ -22,8 +22,8 @@
     "bundle:test": "esbuild build/tests/index.browser.js --outdir=build/bundle --bundle --sourcemap",
     "pretest": "npm run tsc:es && npm run bundle:test",
     "test": "karma start --single-run",
-    "lint": "gts lint",
-    "fix": "gts fix",
+    "lint": "eslint src/** tests/** --no-error-on-unmatched-pattern",
+    "fix": "eslint src/** tests/** --no-error-on-unmatched-pattern --fix",
     "clean": "node scripts/clean.js && gts clean"
   },
   "author": "Koji Ishii",
@@ -33,7 +33,8 @@
     "@material/mwc-formfield": "^0.27.0",
     "@material/mwc-radio": "^0.27.0",
     "@material/mwc-textfield": "^0.27.0",
-    "budoux": "^0.6.0"
+    "budoux": "^0.6.0",
+    "budoux-extension": "file:"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.0",
@@ -41,11 +42,14 @@
     "@types/jasmine": "^5.1.0",
     "@types/jsdom": "^21.1.1",
     "@types/node": "^22.7.9",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
     "archiver": "^7.0.1",
     "commander": "^12.0.0",
     "esbuild": "^0.24.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "glob": "^11.0.0",
-    "gts": "^5.0.0",
     "jasmine": "^5.1.0",
     "jsdom": "^25.0.1",
     "karma": "^6.4.2",

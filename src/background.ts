@@ -20,8 +20,10 @@ async function applyBudouX(tab?: chrome.tabs.Tab, frameId?: number) {
   const tabId = tab?.id;
   assert(tabId !== undefined, tab);
   if (tabId === undefined) return;
-  const target: chrome.scripting.InjectionTarget = {tabId: tabId};
-  if (frameId !== undefined) target.frameIds = [frameId];
+  const target: chrome.scripting.InjectionTarget = {
+    tabId: tabId,
+    frameIds: frameId !== undefined ? [frameId] : undefined,
+  };
   await chrome.scripting.executeScript({
     target: target,
     files: ['content.js'],

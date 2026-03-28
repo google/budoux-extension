@@ -15,4 +15,5 @@ updates:
           - "minor"
           - "patch"
         exclude-patterns:
+          - 'budoux'
           - '@types/chrome'

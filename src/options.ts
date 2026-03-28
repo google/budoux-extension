@@ -64,7 +64,9 @@ function restoreOptions() {
       separator: '\u200B',
     },
     items => {
-      setSeparator(items.separator);
+      if (typeof items.separator === 'string') {
+        setSeparator(items.separator);
+      }
     }
   );
 }

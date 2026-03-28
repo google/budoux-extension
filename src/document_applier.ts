@@ -89,7 +89,9 @@ export class DocumentApplier {
             separator: this.separator,
           },
           items => {
-            this.separator = items.separator;
+            if (typeof items.separator === 'string') {
+              this.separator = items.separator;
+            }
             resolve();
           }
         );

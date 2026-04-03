@@ -39,7 +39,7 @@
     "@types/archiver": "^7.0.0",
     "@types/chrome": "^0.1.0",
     "@types/jasmine": "^6.0.0",
-    "@types/jsdom": "^27.0.0",
+    "@types/jsdom": "^28.0.1",
     "@types/node": "^25.0.1",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "archiver": "^7.0.1",

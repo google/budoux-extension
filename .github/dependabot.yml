@@ -17,3 +17,12 @@ updates:
         exclude-patterns:
           - 'budoux'
           - '@types/chrome'
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - '*'

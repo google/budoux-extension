@@ -4,8 +4,8 @@
     "allowUnusedLabels": false,
     "lib": ["es6", "dom", "dom.iterable"],
     "target": "es2017",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
@@ -17,7 +17,9 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "outDir": "build"
+    "outDir": "build",
+    "types": ["chrome", "jasmine"],
+    "rootDir": "."
   },
   "exclude": [
     "node_modules"
@@ -25,5 +27,11 @@
   "include": [
     "src/**/*.ts",
     "tests/**/*.ts"
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "types": ["node"]
+    }
+  }
 }

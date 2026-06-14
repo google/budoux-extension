@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as archiver from 'archiver';
+import {ZipArchive} from 'archiver';
 import {Command} from 'commander';
 import * as fs from 'fs';
 const {glob} = require('glob');
@@ -85,7 +85,7 @@ class ChromeExtensionPackage {
       output.on('close', resolve);
       output.on('end', resolve);
     });
-    const archive = archiver('zip', {
+    const archive = new ZipArchive({
       zlib: {level: 9},
     });
     archive.pipe(output);

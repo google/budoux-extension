@@ -23,7 +23,6 @@ import {
 
 const isDebug = false;
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
 function logDebug(...args: any[]) {
   if (isDebug) {
     console.log(...args);

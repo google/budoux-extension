@@ -18,7 +18,7 @@
 import {ZipArchive} from 'archiver';
 import {Command} from 'commander';
 import * as fs from 'fs';
-const {glob} = require('glob');
+import {glob} from 'glob';
 import * as path from 'path';
 
 const log = console.log;

@@ -16,9 +16,9 @@
     "prebundle": "npm run tsc:es",
     "bundle": "node scripts/esbuild.js",
     "predist": "npm run bundle",
-    "dist": "ts-node scripts/package.ts -d dist --js build/bundle",
+    "dist": "node scripts/package.ts -d dist --js build/bundle",
     "prezip": "npm run clean && npm run dist",
-    "zip": "ts-node scripts/package.ts -d dist --zip budoux.zip",
+    "zip": "node scripts/package.ts -d dist --zip budoux.zip",
     "bundle:test": "esbuild build/tests/index.browser.js --outdir=build/bundle --bundle --sourcemap",
     "pretest": "npm run tsc:es && npm run bundle:test",
     "test": "karma start --single-run",
@@ -36,6 +36,9 @@
     "budoux": "^0.8.1"
   },
   "devDependencies": {
+    "@babel/core": "^8.0.1",
+    "@babel/eslint-parser": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.1",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@types/archiver": "^8.0.0",
@@ -43,7 +46,6 @@
     "@types/jasmine": "^6.0.0",
     "@types/jsdom": "^28.0.1",
     "@types/node": "^26.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.18.2",
     "archiver": "^8.0.0",
     "commander": "^15.0.0",
     "esbuild": "^0.28.0",
@@ -56,7 +58,6 @@
     "karma": "^6.4.2",
     "karma-chrome-launcher": "^3.2.0",
     "karma-jasmine": "^5.1.0",
-    "ts-node": "^10.4.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }

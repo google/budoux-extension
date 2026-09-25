@@ -1,0 +1,70 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Extension version (e.g. 0.5.3)'
+        required: true
+        type: string
+      publish_type:
+        description: 'Publish type (DEFAULT_PUBLISH, STAGED_PUBLISH, or UPLOAD_ONLY)'
+        required: false
+        default: 'DEFAULT_PUBLISH'
+        type: choice
+        options:
+          - DEFAULT_PUBLISH
+          - STAGED_PUBLISH
+          - UPLOAD_ONLY
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run Tests and Lint
+        run: |
+          npm run build
+          npm test
+          npm run lint
+      - name: Package Extension ZIP
+        env:
+          RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+        run: |
+          VERSION="${RAW_VERSION#v}"
+          npm run clean
+          npm run bundle
+          node scripts/package.ts -d dist --js build/bundle --version "$VERSION" --zip budoux.zip
+      - name: Attach ZIP to GitHub Release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release upload "$RELEASE_TAG" budoux.zip --clobber
+      - name: Publish to Chrome Web Store
+        if: env.CWS_PUBLISHER_ID != ''
+        env:
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID || 'dnonkmkecnbciehcnmhngnihgmenfmph' }}
+          CWS_SERVICE_ACCOUNT_KEY: ${{ secrets.CWS_SERVICE_ACCOUNT_KEY }}
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_PUBLISH_TYPE: ${{ github.event.inputs.publish_type || 'DEFAULT_PUBLISH' }}
+        run: node scripts/publish-cws.ts --zip budoux.zip

@@ -33,12 +33,16 @@ class ChromeExtensionPackage {
     program.option('-d, --dir <dir>', 'unpacked extension directory');
     program.option('-j --js <dir>', 'JavaScript directory');
     program.option('-z, --zip <zip>', 'ZIP file name');
+    program.option('-v, --version <version>', 'override manifest.json version');
     program.parse(process.argv);
     const options = program.opts();
     const dist_dir = options.dir ?? throwMissingArg('extension directory');
     const js_dir = options.js;
     if (js_dir) {
       await this.copy(js_dir, dist_dir);
+    }
+    if (options.version) {
+      await this.updateVersion(dist_dir, options.version);
     }
     const zip_path = options.zip;
     if (zip_path) {
@@ -74,6 +78,23 @@ class ChromeExtensionPackage {
         return fs.promises.copyFile(src, dest);
       })
     );
+  }
+
+  async updateVersion(dist_dir: string, version: string) {
+    const normalized = version.replace(/^v/, '');
+    if (!/^\d+(\.\d+){0,3}$/.test(normalized)) {
+      throw new Error(`Invalid Chrome extension version: ${version}`);
+    }
+    const manifest_path = path.join(dist_dir, 'manifest.json');
+    const manifest = JSON.parse(
+      await fs.promises.readFile(manifest_path, 'utf8')
+    );
+    manifest.version = normalized;
+    await fs.promises.writeFile(
+      manifest_path,
+      JSON.stringify(manifest, null, 2) + '\n'
+    );
+    log(`Updated ${manifest_path} version to ${normalized}`);
   }
 
   async zip(src_dir: string, zip_path: string) {

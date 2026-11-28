@@ -1,7 +1,8 @@
 name: Release
 
 permissions:
-  contents: write
+  contents: read
+  id-token: write
 
 on:
   release:
@@ -52,12 +53,78 @@ jobs:
           npm run clean
           npm run bundle
           node scripts/package.ts -d dist --js build/bundle --version "$VERSION" --zip budoux.zip
-      - name: Attach ZIP to GitHub Release
+      - name: Authenticate to Google Cloud
+        if: github.event_name == 'release'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: 'projects/305452601764/locations/global/workloadIdentityPools/builders/providers/github'
+
+      - name: Set up Cloud SDK
+        if: github.event_name == 'release'
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+
+      - name: Clean up prior staged artifacts in OSS Exit Gate repository
+        if: github.event_name == 'release'
+        run: |
+          set -euo pipefail
+          EXISTING_PKGS="$(gcloud artifacts packages list \
+            --project=oss-exit-gate-prod \
+            --location=us \
+            --repository=budoux-extension--githubreleases \
+            --format='value(name)' 2>/dev/null || true)"
+          for pkg in ${EXISTING_PKGS}; do
+            gcloud artifacts packages delete "${pkg}" \
+              --project=oss-exit-gate-prod \
+              --location=us \
+              --repository=budoux-extension--githubreleases \
+              --quiet || true
+          done
+
+      - name: Stage release artifacts and trigger OSS Exit Gate
         if: github.event_name == 'release'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release upload "$RELEASE_TAG" budoux.zip --clobber
+          RELEASE_NAME: ${{ github.ref_name }}
+          IS_LATEST: true
+          IS_DRAFT: false
+          IS_PRERELEASE: false
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          STAGE_DIR="$(mktemp -d "${RUNNER_TEMP}/exit-gate-stage.XXXXXX")"
+          trap 'rm -rf "${STAGE_DIR}"' EXIT
+          cp budoux.zip "${STAGE_DIR}/"
+          PKG_VERSION="$(printf '%s' "${RELEASE_TAG#v}" | tr '[:upper:]/+' '[:lower:]--' | sed 's/^[^a-z0-9]*//; s/[^a-z0-9._-]/-/g; s/[^a-z0-9]*$//')"
+          PKG_VERSION="${PKG_VERSION:-0.0.0}"
+          gcloud artifacts generic upload \
+            --project=oss-exit-gate-prod \
+            --repository=budoux-extension--githubreleases \
+            --location=us \
+            --package=budoux-extension \
+            --version="${PKG_VERSION}" \
+            --source-directory="${STAGE_DIR}"
+          python3 - <<'PY' > manifest.json
+          import json, os
+          is_draft = os.environ['IS_DRAFT'].lower() == 'true'
+          is_pre = os.environ['IS_PRERELEASE'].lower() == 'true'
+          is_latest = False if (is_draft or is_pre) else (os.environ['IS_LATEST'].lower() == 'true')
+          manifest = {
+              'publish_all': True,
+              'registry_config': {
+                  'github_releases': {
+                      'name': os.environ['RELEASE_NAME'],
+                      'tag': os.environ['RELEASE_TAG'],
+                      'is_latest': is_latest,
+                      'is_draft': is_draft,
+                      'is_prerelease': is_pre,
+                  }
+              }
+          }
+          print(json.dumps(manifest, indent=2))
+          PY
+          gcloud storage cp manifest.json \
+            "gs://oss-exit-gate-prod-projects-bucket/budoux-extension/githubreleases/manifests/manifest-${RUN_ID}-${RUN_ATTEMPT}.json"
       - name: Publish to Chrome Web Store
         if: env.CWS_PUBLISHER_ID != ''
         env:
